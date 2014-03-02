@@ -1,4 +1,5 @@
 #include <pebble.h>
+#include <string.h>
 
 // Enum pebble keys
 enum {
@@ -11,12 +12,14 @@ enum {
 static Window *window;
 static TextLayer *text_layer;
 
+char morse_text[20];
+
 
 /**
 * Sends a key press to phone
 */
-static void send_cmd(uint8_t cmd) {
-	Tuplet value = TupletInteger(DATA_KEY, cmd);
+static void send_msg(const char* morse_text) {
+	Tuplet value = TupletCString(DATA_KEY, morse_text);
 
 	// Construct the dictionary
 	DictionaryIterator *iter;
@@ -30,19 +33,34 @@ static void send_cmd(uint8_t cmd) {
 	app_message_outbox_send();
 }
 
+static void out_sent_handler(DictionaryIterator *sent, void *context) {
+	text_layer_set_text(text_layer,"Debug: Succeeded to send AppMessage to Pebble");
+}
+
+void out_failed_handler(DictionaryIterator *failed, AppMessageResult reason, void *context) {
+	text_layer_set_text(text_layer,"Debug: Failed to send AppMessage to Pebble");
+}
+
+void in_dropped_handler(AppMessageResult reason, void *context) {
+	text_layer_set_text(text_layer,"Debug: Incoming AppMessage from Pebble dropped");
+}
+
 static void select_single_click_handler(ClickRecognizerRef recognizer, void *context) {
-	send_cmd(SELECT_KEY);
+	send_msg(morse_text);
   	text_layer_set_text(text_layer, "Select");
+  	strcpy(morse_text, "");
 }
 
 static void up_single_click_handler(ClickRecognizerRef recognizer, void *context) {
-  	send_cmd(UP_KEY);
+  	strcat(morse_text, ".");
   	text_layer_set_text(text_layer, "Up");
+  	vibes_short_pulse();
 }
 
 static void down_single_click_handler(ClickRecognizerRef recognizer, void *context) {
-  	send_cmd(DOWN_KEY);
+  	strcat(morse_text, "-");
   	text_layer_set_text(text_layer, "Down");
+  	vibes_long_pulse();
 }
 
 
@@ -68,7 +86,10 @@ void config_provider(Window *window) {
 }
 
 static void app_message_init(void) {
-	app_message_open(64, 64);
+	app_message_open(128, 128);
+	app_message_register_inbox_dropped(in_dropped_handler);
+	app_message_register_outbox_sent(out_sent_handler);
+	app_message_register_outbox_failed(out_failed_handler);
 }
 
 static void init(void) {

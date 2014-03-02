@@ -24,19 +24,21 @@ public class MainActivity extends Activity {
 	private static final int UP_BUTTON_KEY = 1;
 	private static final int DOWN_BUTTON_KEY = 2;
 
-	private static final int BUFFER_LENGTH = 32;
+	private static final int BUFFER_LENGTH = 128;
 	private PebbleKit.PebbleDataReceiver dataHandler;
 
 	// Views
 	private TextView morseText;
-	private TextView decodedText;
+	private TextView decodeText;
+
+	private String morseStr;
+	private String decodeStr;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
-		morseText = (TextView) findViewById(R.id.tvMorse);
+		initialize();
 	}
 
 	@Override
@@ -63,30 +65,12 @@ public class MainActivity extends Activity {
 				PebbleKit.sendAckToPebble(context, transactionId);
 
 				// Get which key was pressed
-				int keyPressed = data.getUnsignedInteger(DATA_KEY).intValue();
+				morseStr = data.getString(DATA_KEY);
 
-				// Update UI
-				switch (keyPressed) {
-				case SELECT_BUTTON_KEY: {
-					morseText.setText("Select button pressed");
-					sendStringToPebble("Phone says 'select'");
-					break;
-				}
-				case UP_BUTTON_KEY: {
-					morseText.setText("Up button pressed");
-					sendStringToPebble("Phone says 'up");
-					break;
-				}
-				case DOWN_BUTTON_KEY: {
-					morseText.setText("Down button pressed");
-					sendStringToPebble("Phone says 'down");
-					break;
-				}
-				default: {
-					morseText.setText("Unkown button");
-					break;
-				}
-				}
+				morseText.setText(morseText.getText() + " " + morseStr);
+				decodeStr = MorseDecoder.decode(morseStr);
+				decodeText.setText(decodeText.getText() + decodeStr);
+				morseStr = "";
 
 			}
 		};
@@ -119,10 +103,17 @@ public class MainActivity extends Activity {
 		if (message.length() < BUFFER_LENGTH) {
 			PebbleDictionary dictionary = new PebbleDictionary();
 			dictionary.addString(DATA_KEY, message);
-			PebbleKit.sendDataToPebble(getApplicationContext(), APP_UUID, dictionary);
-		}
-		else {
+			PebbleKit.sendDataToPebble(getApplicationContext(), APP_UUID,
+					dictionary);
+		} else {
 			Log.i("sendStringToPebble()", "String too long!");
 		}
+	}
+
+	private void initialize() {
+		morseText = (TextView) findViewById(R.id.tvMorse);
+		decodeText = (TextView) findViewById(R.id.tvDecode);
+		morseStr = "";
+		decodeStr = "";
 	}
 }
