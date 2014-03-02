@@ -77,6 +77,31 @@ void in_drop_handler(void* context, AppMessageResult reaason) {
 
 
 /**
+* Sends a key press to phone
+*/
+static void send_cmd(uint8_t cmd) {
+	Tuplet value = TupletInteger(DATA_KEY, cmd);
+
+	// Construct the dictionary
+	DictionaryIterator *iter;
+	app_message_out_get(&iter);
+
+	// If not constructed, do not send -- return right away
+	if (iter == NULL) {
+		return;
+	}
+
+	// Write tuplet to the dictionary
+	dict_write_tuplet(iter, &value);
+	dict_write_end(iter);
+
+	// Send dictionary and release buffer
+	app_message_out_send();
+	app_message_out_release();
+}
+
+
+/**
 * Main Pebble loop
 */
 void pbl_main(void* params) {
