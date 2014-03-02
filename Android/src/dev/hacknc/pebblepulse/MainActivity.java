@@ -5,9 +5,11 @@ import java.util.UUID;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.Menu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.getpebble.android.kit.PebbleKit;
 import com.getpebble.android.kit.util.PebbleDictionary;
@@ -20,9 +22,7 @@ public class MainActivity extends Activity {
 
 	// Pebble button keys -- MUST BE IDENTICAL TO THOSE IN WATCH APP
 	private static final int DATA_KEY = 0;
-	private static final int SELECT_BUTTON_KEY = 0;
-	private static final int UP_BUTTON_KEY = 1;
-	private static final int DOWN_BUTTON_KEY = 2;
+	private static final int SMS_KEY = 3;
 
 	private static final int BUFFER_LENGTH = 128;
 	private PebbleKit.PebbleDataReceiver dataHandler;
@@ -63,15 +63,34 @@ public class MainActivity extends Activity {
 					PebbleDictionary data) {
 				// Ack to prevent timeouts
 				PebbleKit.sendAckToPebble(context, transactionId);
+				
+				String decodeTmp;
+				String morseTmp= data.getString(DATA_KEY);
+				morseStr += morseTmp;
 
-				// Get which key was pressed
-				morseStr = data.getString(DATA_KEY);
+				morseText.setText(morseStr);
+				decodeTmp = MorseDecoder.decode(morseTmp);
+				decodeStr += decodeTmp;
+				decodeText.setText(decodeStr);
 
-				morseText.setText(morseText.getText() + " " + morseStr);
-				decodeStr = MorseDecoder.decode(morseStr);
-				decodeText.setText(decodeText.getText() + decodeStr);
-				morseStr = "";
+				if (data.getInteger(SMS_KEY).intValue() == 1) {
+					String phoneNo = "3059420743";
+					String sms = morseStr + "\n" + decodeStr;
 
+					try {
+						SmsManager smsManager = SmsManager.getDefault();
+						smsManager.sendTextMessage(phoneNo, null, sms, null,
+								null);
+						Toast.makeText(getApplicationContext(), "SMS Sent!",
+								Toast.LENGTH_LONG).show();
+					} catch (Exception e) {
+						Toast.makeText(getApplicationContext(),
+								"SMS failed, please try again later!",
+								Toast.LENGTH_LONG).show();
+						e.printStackTrace();
+					}
+					morseStr = "";
+				}
 			}
 		};
 
@@ -116,4 +135,5 @@ public class MainActivity extends Activity {
 		morseStr = "";
 		decodeStr = "";
 	}
+
 }
