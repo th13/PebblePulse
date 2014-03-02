@@ -5,6 +5,7 @@ import java.util.UUID;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.widget.TextView;
 
@@ -23,6 +24,7 @@ public class MainActivity extends Activity {
 	private static final int UP_BUTTON_KEY = 1;
 	private static final int DOWN_BUTTON_KEY = 2;
 
+	private static final int BUFFER_LENGTH = 32;
 	private PebbleKit.PebbleDataReceiver dataHandler;
 
 	// Views
@@ -33,6 +35,8 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		morseText = (TextView) findViewById(R.id.tvMorse);
 	}
 
 	@Override
@@ -105,4 +109,20 @@ public class MainActivity extends Activity {
 		}
 	}
 
+	/**
+	 * Send string to Pebble watch app
+	 * 
+	 * @param message
+	 *            String to send
+	 */
+	private void sendStringToPebble(String message) {
+		if (message.length() < BUFFER_LENGTH) {
+			PebbleDictionary dictionary = new PebbleDictionary();
+			dictionary.addString(DATA_KEY, message);
+			PebbleKit.sendDataToPebble(getApplicationContext(), APP_UUID, dictionary);
+		}
+		else {
+			Log.i("sendStringToPebble()", "String too long!");
+		}
+	}
 }

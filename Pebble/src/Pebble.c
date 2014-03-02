@@ -102,6 +102,19 @@ static void send_cmd(uint8_t cmd) {
 
 
 /**
+* Handler for received AppMessage
+*/
+static void in_received_handler(DictionaryIterator* iter, void* context) {
+	// Create tuple from the received dictionary using the key
+	Tuple* in_tuple = dict_find(iter, DATA_KEY);
+
+	if (in_tuple) {
+		// Show the received string on the watch
+		text_layer_set_text(&textLayer, in_tuple->value->cstring);
+	}
+}
+
+/**
 * Main Pebble loop
 */
 void pbl_main(void* params) {
