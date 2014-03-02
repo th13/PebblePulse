@@ -43,6 +43,67 @@ static void window_unload(Window *window) {
   text_layer_destroy(text_layer);
 }
 
+
+/**
+* Handler for AppMessage sent
+*/
+void out_sent_handler(DictionaryIterator* sent, void* context) {
+	// Send successful
+}
+
+
+/**
+* Handler for AppMessage send failed
+*/
+static void out_fail_handler(DictionaryIterator* failed, AppMessageResult reason, void* context) {
+	// Send failed
+}
+
+
+/**
+* Handler for received AppMessage
+*/
+static void in_received_handler(DictionaryIterator* iter, void* context) {
+	// Data received here
+}
+
+
+/**
+* Handler for received messages dropped
+*/
+void in_drop_handler(void* context, AppMessageResult reaason) {
+	// Received failed -- mesage dropped
+}
+
+
+/**
+* Main Pebble loop
+*/
+void pbl_main(void* params) {
+	PebbleAppHandlers handlers = {
+		.init_handler = &handle_init,
+
+		.messaging_info = {
+			// Set the sizess of the buffers
+			.buffer_sizes = {
+				.inbound = 64,
+				.outbound = 16,
+			},
+
+			// Use default callback mode
+			.default_callbcks.callbacks = {
+				.out_sent = out_sent_handler,
+				.out_failed = out_fail_handler,
+				.in_received = in_received_handler,
+				.in_dropped = in_drop_handler,
+			},
+		}
+	};
+
+	app_event_loop(params, &handlers);
+}
+
+
 static void init(void) {
   window = window_create();
   window_set_click_config_provider(window, click_config_provider);
