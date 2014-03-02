@@ -1,5 +1,13 @@
 #include <pebble.h>
 
+// Enum pebble keys
+enum {
+	SELECT_KEY = 0x0,
+	UP_KEY = 0x1,
+	DOWN_KEY = 0x2,
+	DATA_KEY = 0x0
+};
+
 static Window *window;
 static TextLayer *text_layer;
 
