@@ -64,6 +64,7 @@ public class MainActivity extends Activity {
 	private TextView tvSendTo;
 	private EditText etUser;
 	private EditText etSendTo;
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -89,7 +90,7 @@ public class MainActivity extends Activity {
 			public void onClick(View arg0) {
 
 				ParseQuery<ParseObject> query = ParseQuery.getQuery("Users");
-				query.whereEqualTo("user", userId);
+				query.whereEqualTo("user", etUser.getText().toString());
 				query.findInBackground(new FindCallback<ParseObject>() {
 					public void done(List<ParseObject> users, ParseException e) {
 						if (e == null) {
@@ -268,8 +269,6 @@ public class MainActivity extends Activity {
 		setSendTo = (Button) findViewById(R.id.button2);
 		morseStr = "";
 		decodeStr = "";
-
-		userId = "thelms501";
 
 		Parse.initialize(this, "hzVOXqn5sGg6E4LQSuNnduF7Vgsh8r7RGYCfeaDc",
 				"Ky9lB2gWiksTBQOUhHmxktZALgJF9Sw6LQ3mlG4o");

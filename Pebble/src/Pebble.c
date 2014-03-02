@@ -56,36 +56,36 @@ static void notify_send_sms() {
 }
 
 static void out_sent_handler(DictionaryIterator *sent, void *context) {
-	text_layer_set_text(text_layer,"Debug: Succeeded to send AppMessage to Pebble");
+	text_layer_set_text(text_layer, "OK");
 }
 
 void out_failed_handler(DictionaryIterator *failed, AppMessageResult reason, void *context) {
-	text_layer_set_text(text_layer,"Debug: Failed to send AppMessage to Pebble");
+	text_layer_set_text(text_layer,"Oops! Something happened.");
 }
 
 void in_dropped_handler(AppMessageResult reason, void *context) {
-	text_layer_set_text(text_layer,"Debug: Incoming AppMessage from Pebble dropped");
+	text_layer_set_text(text_layer,"Oops! Didn't get that.");
 }
 
 static void select_single_click_handler(ClickRecognizerRef recognizer, void *context) {
 	send_msg(morse_text);
-  	text_layer_set_text(text_layer, "Select");
+  	text_layer_set_text(text_layer, "OK");
   	strcpy(morse_text, "");
 }
 
 static void up_single_click_handler(ClickRecognizerRef recognizer, void *context) {
   	strcat(morse_text, ".");
-  	text_layer_set_text(text_layer, "Up");
+  	text_layer_set_text(text_layer, "Dot");
 }
 
 static void down_single_click_handler(ClickRecognizerRef recognizer, void *context) {
   	strcat(morse_text, "-");
-  	text_layer_set_text(text_layer, "Down");
+  	text_layer_set_text(text_layer, "Dash");
 }
 
 static void select_long_click_handler(ClickRecognizerRef recognizer, void *context) {
 	notify_send_sms();
-	text_layer_set_text(text_layer, "SMS Sent");
+	text_layer_set_text(text_layer, "Sent the message!");
 }
 
 
